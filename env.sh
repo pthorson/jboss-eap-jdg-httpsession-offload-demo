@@ -4,8 +4,9 @@ JBOSS_HOME=$TARGET_DIR/jboss-eap-6.4
 EAP_BASE_SERVER_DIR=$JBOSS_HOME/standalone
 JDG_HOME=$TARGET_DIR/jboss-datagrid-6.6.0-server
 
-SRC_EAP_DIR=/opt/binaries/eap
-SRC_JDG_DIR=/opt/binaries/jdg
+# Allow point to dir where installers are.
+SRC_EAP_DIR=./installs
+SRC_JDG_DIR=./installs
 SUPPORT_DIR=./support
 PRJ_DIR=./projects/payment-cdi-event/
 
