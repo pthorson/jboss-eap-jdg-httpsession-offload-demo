@@ -1,7 +1,6 @@
 #!/bin/sh
 
-EAP_HOME="./target/jboss-eap-6.4"
-JDG_HOME="./target/jboss-datagrid-6.5.1-server"
+. env.sh
 STARTUP_WAIT=6
 
 
@@ -29,14 +28,14 @@ function waitForStartup(){
     printf "\n $node_name failed to startup in the time allotted \n"
     return 7
   fi
-  
+
   printf "\n\n\t >> $log_entry"
 }
 
 function startJDGNode(){
    node_name=$1
    ports_offset=$2
-   
+
    printf "\n\n ___"
    printf "\n\tstarting >>> ${node_name} <<<"
    $JDG_HOME/bin/clustered.sh \
@@ -51,7 +50,7 @@ function startJDGNode(){
 
    JVM_PID=$(ps -eo pid,command | grep "org.jboss.as.standalone" | grep "jboss.node.name=$node_name" | grep -v grep | awk '{print $1}')
    jdg_hotrod_port=$(bc -l <<< "11222 + $ports_offset")
-   
+
    printf "\n\n\t $node_name is UP and RUNNING! JVM PID: $JVM_PID"
    printf "\n\t $node_name JVM PID: $JVM_PID" >> startup_summary
    printf "\n\t\t $node_name Hot Rod Service listening on port: $jdg_hotrod_port" >> startup_summary
@@ -60,23 +59,23 @@ function startJDGNode(){
 
 function stopNode(){
    node_name=$1
-   
+
    printf "\n\t killing >>> ${node_name} <<<"
    JVM_PID=$(ps -eo pid,command | grep "org.jboss.as.standalone" | grep "jboss.node.name=$node_name" | grep -v grep | awk '{print $1}')
-   
+
    [[ ! -z $JVM_PID ]] && kill $JVM_PID && printf "\n\t $node_name [PID: $JVM_PID] killed!"
 }
 
 function startEAPNode(){
    node_name=$1
    ports_offset=$2
-   
+
    printf "\n\n ___"
    printf "\n\tstarting >>> ${node_name} <<<"
 
-  $EAP_HOME/bin/standalone.sh \
+  $JBOSS_HOME/bin/standalone.sh \
   -b 127.0.0.1 -c standalone-ha.xml \
-  -Djboss.server.base.dir=$EAP_HOME/$node_name \
+  -Djboss.server.base.dir=$JBOSS_HOME/$node_name \
   -Djboss.node.name=$node_name \
   -Djboss.socket.binding.port-offset=$ports_offset \
   -Djava.net.preferIPv4Stack=true \
@@ -91,7 +90,7 @@ function startEAPNode(){
 
    JVM_PID=$(ps -eo pid,command | grep "org.jboss.as.standalone" | grep "jboss.node.name=$node_name" | grep -v grep | awk '{print $1}')
    eap_http_port=$(bc -l <<< "8080 + $ports_offset")
-   
+
    printf "\n\n\t $node_name is UP and RUNNING! JVM PID: $JVM_PID"
    printf "\n\t $node_name JVM PID: $JVM_PID" >> startup_summary
    printf "\n\t\t $node_name Web Server listening on port: $eap_http_port " >> startup_summary
@@ -165,5 +164,3 @@ case "$1" in
     usage
     ;;
 esac
-
-
