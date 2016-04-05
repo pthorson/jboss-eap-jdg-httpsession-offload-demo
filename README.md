@@ -1,6 +1,6 @@
 # JBoss EAP 6 Session Offload Demo
 ## Demo description
-In this demo I'll show the new capability available in the *JBoss Data Grid 6.5*: [**Externalize HTTP Session from JBoss**](https://access.redhat.com/documentation/en-US/Red_Hat_JBoss_Data_Grid/6.5/html-single/Administration_and_Configuration_Guide/index.html#chap-Externalize_Sessions)
+In this demo I'll show the new capability available in the *JBoss Data Grid 6.6*: [**Externalize HTTP Session from JBoss**](https://access.redhat.com/documentation/en-US/Red_Hat_JBoss_Data_Grid/6.6/html-single/Administration_and_Configuration_Guide/index.html#chap-Externalize_Sessions)
 
 This capability allow us to externalize the HTTP Web Sessions from the Application Server to an external (remote) Data Grid cluster.
 In some scenarios this can alleviate the Application Server memory consumption and improve the *availability* and *failover* of your Web Application User State. There are others great benefits this approach can bring to your setup:
@@ -36,9 +36,9 @@ This integration can be enabled just with a little of configuration in the EAP C
 
  cd eap-jdg-httpsession-offload-demo/
  ```
- 2. Download the JBoss EAP and JDG binaries into `eap-jdg-httpsession-offload-demo/installs` subdirectory
-  * `jboss-eap-6.4.0-installer.jar`
-  * `jboss-datagrid-6.5.1-server.zip`
+ 2. Download the JBoss EAP and JDG binaries into `eap-jdg-httpsession-offload-demo/installs` subdirectory.
+  * `jboss-eap-6.4.0-installer.jar` or `jboss-eap-6.4.0.zip`
+  * `jboss-datagrid-6.6.0-server.zip`
  3. execute the `./init.sh` script
 
  > NOTE: if your running on Mac OS X you have to add a specific network `route` to your `loopback` interface:
@@ -84,7 +84,7 @@ This integration can be enabled just with a little of configuration in the EAP C
    * use the `stats` command to see the cache live information
 
  ```
- #JDG_HOME=./target/jboss-datagrid-6.5.1-server
+ #JDG_HOME=./target/jboss-datagrid-6.6.0-server
  cd $JDG_HOME/bin
  ./cli.sh
 You are disconnected at the moment. Type 'connect' to connect to the server or 'help' for the list of supported commands.
