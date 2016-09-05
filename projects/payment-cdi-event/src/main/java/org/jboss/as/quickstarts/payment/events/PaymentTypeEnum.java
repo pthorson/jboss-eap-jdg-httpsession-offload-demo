@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source
- * Copyright 2014, Red Hat, Inc. and/or its affiliates, and individual
+ * Copyright 2015, Red Hat, Inc. and/or its affiliates, and individual
  * contributors by the @authors tag. See the copyright.txt in the
  * distribution for a full listing of individual contributors.
  *
@@ -21,11 +21,12 @@ import java.util.Map;
 
 public enum PaymentTypeEnum {
 
-    CREDIT("1"), DEBIT("2");
+    CREDIT("1"),
+    DEBIT("2");
 
     private final String value;
 
-    static Map<String, PaymentTypeEnum> map = new HashMap<String, PaymentTypeEnum>();
+    static Map<String, PaymentTypeEnum> map = new HashMap<>();
 
     static {
         for (PaymentTypeEnum paymentType : PaymentTypeEnum.values()) {

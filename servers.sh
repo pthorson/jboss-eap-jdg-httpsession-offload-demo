@@ -14,7 +14,7 @@ function waitForStartup(){
   until [ $count -gt $STARTUP_WAIT ]
   do
     #grep 'JBAS015874:' ${node_name}.log > /dev/null
-    log_entry=`grep 'JBAS015874:' ${node_name}.log`
+    log_entry=`grep 'WFLYSRV0025:' ${node_name}.log`
     if [ $? -eq 0 ] ; then
       launched=true
       break
@@ -38,7 +38,7 @@ function startJDGNode(){
 
    printf "\n\n ___"
    printf "\n\tstarting >>> ${node_name} <<<"
-   $JDG_HOME/bin/clustered.sh \
+   $JDG_HOME/bin/standalone.sh \
     -b 127.0.0.1 \
     -Djboss.node.name=$node_name \
     -Djava.net.preferIPv4Stack=true \
@@ -46,7 +46,7 @@ function startJDGNode(){
     -Djgroups.bind_addr=127.0.0.1 &> ./${node_name}.log&
 
    waitForStartup $node_name
-   [[ $? != 0 ]] && printf "\t can't start ${node_name}. Please chech the ./$node_name.log file" && exit 1
+   [[ $? != 0 ]] && printf "\t can't start ${node_name}. Please check the ./$node_name.log file" && exit 1
 
    JVM_PID=$(ps -eo pid,command | grep "org.jboss.as.standalone" | grep "jboss.node.name=$node_name" | grep -v grep | awk '{print $1}')
    jdg_hotrod_port=$(bc -l <<< "11222 + $ports_offset")

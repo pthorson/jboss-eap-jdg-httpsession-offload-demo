@@ -39,7 +39,8 @@ This integration can be enabled just with a little of configuration in the EAP C
  2. Download the JBoss EAP and JDG binaries into `eap-jdg-httpsession-offload-demo/installs` subdirectory.
   * `jboss-eap-6.4.0-installer.jar` or `jboss-eap-6.4.0.zip`
   * `jboss-datagrid-6.6.0-server.zip`
- 3. execute the `./init.sh` script
+ 3. Check the variables on env.sh
+ 4. execute the `./init.sh` script
 
  > NOTE: if your running on Mac OS X you have to add a specific network `route` to your `loopback` interface:
 
@@ -58,7 +59,7 @@ This integration can be enabled just with a little of configuration in the EAP C
 
 ## Testing
 
- * open the application in one browser window using the `eap_node1` instance: `http://localhost:8080/jboss-payment-cdi-event`
+ * open the application in one browser window using the `eap_node1` instance: http://localhost:8080/jboss-payment-cdi-event
   * create some Payment entries(events) to store some data in the user web session.
   * observe the session and cache info on the right side of the page.
    * take a note of the Session ID (to compare when you go to another eap node instance in the cluster)
@@ -70,7 +71,7 @@ This integration can be enabled just with a little of configuration in the EAP C
   ./servers.sh stop eap_node1
   ```
 
-  * **in the same browser window (same session)** access the `eap_node2` instance: `http://localhost:8180/jboss-payment-cdi-event`
+  * **in the same browser window (same session)** access the `eap_node2` instance: http://localhost:8180/jboss-payment-cdi-event
    * at this point you should see the same entries in the page.
    > NOTE: this is possible because the user session id (`JSESSIONID`) is persisted as a cookie in the browser.
 
@@ -106,3 +107,8 @@ You are disconnected at the moment. Type 'connect' to connect to the server or '
 
 ## For detailed configuration used in this demo
 To see the steps used to configure the EAP and JDG nodes for this demo see see the instructions [here](docs/env-configuration.md)
+
+## TODO
+
+. Change JDG to Domain mode, now in JDG 7 is cool to explore tha web console only
+available on domain mode!
