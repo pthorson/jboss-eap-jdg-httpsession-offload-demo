@@ -1,7 +1,29 @@
 #!/bin/sh
 
-. env.sh
-STARTUP_WAIT=6
+#. env.sh
+# copied here because reasons
+TARGET_DIR=./target
+
+JBOSS_HOME=$TARGET_DIR/jboss-eap-7.1
+EAP_BASE_SERVER_DIR=$JBOSS_HOME/standalone
+JDG_HOME=$TARGET_DIR/jboss-datagrid-7.3.1-server
+PATH=$MVN_HOMEbin:$PATH
+
+echo $JBOSS_HOME
+echo $JDG_HOME
+
+# Allow point to dir where installers are.
+SRC_EAP_DIR=./installs
+SRC_JDG_DIR=./installs
+SUPPORT_DIR=./support
+PRJ_DIR=./projects/payment-cdi-event/
+
+EAP=jboss-eap-7.1.0.zip
+JDG=jboss-datagrid-7.2.0-server.zip
+VERSION="EAP 7.1 and JDG 7.3.1"
+
+
+STARTUP_WAIT=10
 
 
 function waitForStartup(){
@@ -26,11 +48,31 @@ function waitForStartup(){
 
   if [ "$launched" = "false" ] ; then
     printf "\n $node_name failed to startup in the time allotted \n"
+    log_entry=`grep 'WFLYSRV0026:' ${node_name}.log`
+    printf "\n\n\t >> $log_entry"
     return 7
   fi
 
   printf "\n\n\t >> $log_entry"
 }
+
+# added to work with git bash PT
+function getPIDforJbossNode(){
+ node_name=$1
+ ps -e | grep java | awk '{print $1}' \
+   | while read pid ; do
+	  [ -d /proc/$pid ] || continue
+	  cmdln=$(cat /proc/$pid/cmdline | grep -a "jboss.node.name=$node_name")
+	  if [ ! "${cmdln}" = "" ]
+		then
+		  #echo "You are going to kill some process:"
+		  #echo "${cmdln}"
+		  echo $pid
+		  return
+	  fi
+	done
+}
+
 
 function startJDGNode(){
    node_name=$1
@@ -39,7 +81,8 @@ function startJDGNode(){
    printf "\n\n ___"
    printf "\n\tstarting >>> ${node_name} <<<"
    $JDG_HOME/bin/standalone.sh \
-    -b 127.0.0.1 \
+    -b 127.0.0.1 -c clustered.xml \
+    -Djboss.server.base.dir=$JDG_HOME/$node_name \
     -Djboss.node.name=$node_name \
     -Djava.net.preferIPv4Stack=true \
     -Djboss.socket.binding.port-offset=$ports_offset \
@@ -48,8 +91,9 @@ function startJDGNode(){
    waitForStartup $node_name
    [[ $? != 0 ]] && printf "\t can't start ${node_name}. Please check the ./$node_name.log file" && exit 1
 
-   JVM_PID=$(ps -eo pid,command | grep "org.jboss.as.standalone" | grep "jboss.node.name=$node_name" | grep -v grep | awk '{print $1}')
-   jdg_hotrod_port=$(bc -l <<< "11222 + $ports_offset")
+   #JVM_PID=$(ps -e pid,command | grep "org.jboss.as.standalone" | grep "jboss.node.name=$node_name" | grep -v grep | awk '{print $1}')
+   JVM_PID=$(getPIDforJbossNode $node_name)
+   jdg_hotrod_port=$((11222 + $ports_offset))
 
    printf "\n\n\t $node_name is UP and RUNNING! JVM PID: $JVM_PID"
    printf "\n\t $node_name JVM PID: $JVM_PID" >> startup_summary
@@ -61,7 +105,8 @@ function stopNode(){
    node_name=$1
 
    printf "\n\t killing >>> ${node_name} <<<"
-   JVM_PID=$(ps -eo pid,command | grep "org.jboss.as.standalone" | grep "jboss.node.name=$node_name" | grep -v grep | awk '{print $1}')
+   #JVM_PID=$(ps -eo pid,command | grep "org.jboss.as.standalone" | grep "jboss.node.name=$node_name" | grep -v grep | awk '{print $1}')
+   JVM_PID=$(getPIDforJbossNode $node_name)
 
    [[ ! -z $JVM_PID ]] && kill $JVM_PID && printf "\n\t $node_name [PID: $JVM_PID] killed!"
 }
@@ -88,8 +133,9 @@ function startEAPNode(){
    waitForStartup $node_name
    [[ $? != 0 ]] && printf "\t can't start ${node_name}. Please chech the ./$node_name.log file" && exit 1
 
-   JVM_PID=$(ps -eo pid,command | grep "org.jboss.as.standalone" | grep "jboss.node.name=$node_name" | grep -v grep | awk '{print $1}')
-   eap_http_port=$(bc -l <<< "8080 + $ports_offset")
+   #JVM_PID=$(ps -eo pid,command | grep "org.jboss.as.standalone" | grep "jboss.node.name=$node_name" | grep -v grep | awk '{print $1}')
+   JVM_PID=$(getPIDforJbossNode $node_name)
+   eap_http_port=$((8080 + $ports_offset))
 
    printf "\n\n\t $node_name is UP and RUNNING! JVM PID: $JVM_PID"
    printf "\n\t $node_name JVM PID: $JVM_PID" >> startup_summary
@@ -104,7 +150,7 @@ function summary(){
   printf "\n ___ \n"
   printf "\n Cluster nodes startup Finished!!!"
   printf "\n\t You can now access the webapp to test your cluster!"
-  printf "\n\t\t Login to http://localhost:8080/jboss-payment-cdi-event \n\n\n"
+  printf "\n\t\t Login to http://localhost:8180/jboss-payment-cdi-event \n\n\n"
 }
 
 function usage(){
@@ -121,8 +167,8 @@ case "$1" in
 	  startJDGNode jdg_node1 600
 	  startJDGNode jdg_node2 700
 	  printf "\n ====== \n" >> startup_summary
-	  startEAPNode eap_node1 0
-	  startEAPNode eap_node2 100
+	  startEAPNode eap_node1 100
+	  startEAPNode eap_node2 200
 	  summary
 	  ;;
       eap_node[1-9])
@@ -136,7 +182,7 @@ case "$1" in
 	  summary
 	  ;;
       *)
-	  ## If no parameters are given, print which are avaiable.
+	  ## If no parameters are given, print which are available.
 	  usage
 	  ;;
     esac
@@ -154,13 +200,13 @@ case "$1" in
 	  stopNode $2
 	  ;;
       *)
-        ## If no parameters are given, print which are avaiable.
+        ## If no parameters are given, print which are available.
         usage
         ;;
     esac
     ;;
   *)
-    ## If no parameters are given, print which are avaiable.
+    ## If no parameters are given, print which are available.
     usage
     ;;
 esac

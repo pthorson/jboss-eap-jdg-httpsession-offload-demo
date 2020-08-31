@@ -5,7 +5,28 @@ AUTHORS="Rafael T. C. Soares"
 PROJECT="git@github.com:rafaeltuelho/eap-jdg-httpsession-offload-demo.git"
 PRODUCT="JBoss EAP and JDG"
 
-. env.sh
+#. env.sh
+# copied here because reasons
+TARGET_DIR=./target
+
+JBOSS_HOME=$TARGET_DIR/jboss-eap-7.1
+EAP_BASE_SERVER_DIR=$JBOSS_HOME/standalone
+JDG_HOME=$TARGET_DIR/jboss-datagrid-7.2.0-server
+PATH=$MVN_HOMEbin:$PATH
+
+echo $JBOSS_HOME
+echo $JDG_HOME
+
+# Allow point to dir where installers are.
+SRC_EAP_DIR=./installs
+SRC_JDG_DIR=./installs
+SUPPORT_DIR=./support
+PRJ_DIR=./projects/payment-cdi-event/
+
+EAP=jboss-eap-7.1.0.zip
+JDG=jboss-datagrid-7.2.0-server.zip
+VERSION="EAP 7.1 and JDG 7.2"
+
 
 # wipe screen.
 clear
@@ -34,7 +55,7 @@ echo "##                                                             ##"
 echo "#################################################################"
 echo
 
-command -v mvn -q >/dev/null 2>&1 || { echo >&2 "Maven is required but not installed or not present in thet system PATH yet... aborting."; exit 1; }
+command -v mvn -q >/dev/null 2>&1 || { echo >&2 "Maven is required but not installed or not present in the system PATH yet... aborting."; exit 1; }
 
 # make some checks first before proceeding.
 if [ -r $SRC_EAP_DIR/$EAP ] || [ -L $SRC_EAP_DIR/$EAP ]; then
